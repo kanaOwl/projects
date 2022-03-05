@@ -1,0 +1,247 @@
+import java.util.Scanner;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
+public class Main {
+
+    public static void main(String[] args) {
+       // test1();
+       //test2();
+      //  test3();
+      //  test4();
+        test5();
+    }
+
+    public static double countDistance(Point3D point1, Point3D point2){
+        return sqrt(pow((point1.x - point2.x), 2) + pow((point1.y - point2.y), 2) + pow((point1.z - point2.z), 2));
+    }
+
+    public static double countSurfaceDistance(Sphere sphere1, Sphere sphere2)
+    {
+        return countDistance(sphere1.center, sphere2.center)-sphere1.radius-sphere2.radius;
+    }
+
+    public static void test1()
+    {
+        Point3D p1=new Point3D();
+        Point3D p2=new Point3D();
+        Scanner s = new Scanner(System.in);
+        p1.read(s);
+        p2.read(s);
+        System.out.println("расстояние составит "+countDistance(p2,p1));
+    }
+
+    public static void test2()
+    {
+        Sphere sp1=new Sphere();
+        Sphere sp2=new Sphere();
+        Scanner s = new Scanner(System.in);
+        sp1.read(s);
+        sp2.read(s);
+        System.out.println(sp1 + " " + sp2);
+        System.out.println("расстояние между центрами составит "+countDistance(sp1.center, sp2.center));
+        //System.out.println("расстояние между поверхностями составит "+(countDistance(sp1.center, sp2.center)-sp1.radius- sp2.radius));
+        System.out.println("расстояние между поверхностями составит "+countSurfaceDistance(sp1, sp2));
+    }
+
+    public static void test3()
+    {
+        Sphere testSphere = new Sphere();
+
+        Ball testBall = new Ball();
+
+        testBall.center.x=10;  //Exception in thread "main" java.lang.NullPointerException: Cannot assign field "x" because "testBall.center" is null
+                                //точка внутри шара не была проинициализирована
+    }
+
+    public static void test4()
+    {
+        Point3D p1 = new Point3D(1, 2, 3);
+        Point3D p2;
+        p1 = new Point3D();
+        Sphere sphere1 = new Sphere(p1,10);
+        Sphere sphere2 = new Sphere(new Point3D(4, 3, 0),12);
+        Sphere sphere3 = new Sphere(0,3,4,6);
+
+    }
+
+    public static void test5()
+    {
+        Ball ball1=new Ball(new Point3D(1, 2, 4), 10, 0.75);
+        System.out.println("-----------------------------");
+        ball1 = new Ball(7, -5, -8, -21, 4);
+
+        Figure3D f = new Sphere();
+        f.getVolume();
+        f = new Ball();
+        f.getVolume();
+        f = new Cube();
+        f.getVolume();
+    }
+
+
+}
+
+class Point3D {
+    double x;
+    double y;
+    double z;
+    {//секция нестатической инициализации
+        System.out.println("init Point3D");
+    }
+    static{//секция статической инициализации
+        System.out.println("static init Point3D");
+    }
+    public void read(Scanner ordinate) {
+        if (ordinate.hasNextDouble()) {
+            x = ordinate.nextDouble();
+            y = ordinate.nextDouble();
+            z = ordinate.nextDouble();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Point3D{" + x +"; " + y +"; " + z + '}';
+    }
+
+    public Point3D()
+    {
+        System.out.println("constructor0 Point3D()");
+    }
+
+    public Point3D(double x, double y, double z) {
+        System.out.println("begin constructor1 Point3D");
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        System.out.println("end constructor1 Point3D "+this.toString());
+    }
+}
+abstract class Figure3D {
+    public Figure3D() {
+        System.out.println("constructor0 Figure()");
+    }
+    public abstract double getVolume();
+}
+
+class Sphere extends Figure3D{
+    static double maxRadius=156;
+    {//секция нестатической инициализации
+        System.out.println("init Sphere");
+    }
+    static{//секция статической инициализации
+        System.out.println("static init Sphere");
+        maxRadius = Math.random();
+    }
+    Point3D center;
+    double radius;
+    public void read(Scanner sc)
+    {
+        center = new Point3D();
+        center.read(sc);
+       /* radius = sc.nextDouble();
+        if(radius<0)
+            radius=0;*/
+        setRadius(sc.nextDouble());
+    }
+
+    @Override
+    public String toString() {
+        return "Sphere{" +
+                "center=" + center +
+                ", radius=" + radius +
+                '}';
+    }
+
+
+
+    public Sphere()  {
+        System.out.println("constructor0 Sphere()");
+    }
+
+    @Override
+    public double getVolume() {
+        return (4.0 / 3) * Math.PI * Math.pow(radius, 3);
+    }
+
+    public Sphere(Point3D center, double radius) {
+        System.out.println("begin constructor1 Sphere");
+        this.center = center;
+        setRadius(radius);
+        System.out.println("end constructor1 Sphere "+this.toString());
+    }
+
+    public Sphere(double x, double y, double z, double radius) {
+        System.out.println("begin constructor2 Sphere");
+        center = new Point3D(x,y,z);
+        setRadius(radius);
+        System.out.println("end constructor2 Sphere "+this.toString());
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+        if(radius<0)
+            this.radius=0;
+    }
+}
+
+class Ball extends Sphere
+{
+    double m;
+    {//секция нестатической инициализации
+        System.out.println("init Ball");
+    }
+    static{//секция статической инициализации
+        System.out.println("static init Ball");
+    }
+    @Override
+    public String toString() {
+        return "Ball{" +
+                "center=" + center +
+                ", radius=" + radius +
+                ", m=" + m +
+                '}';
+    }
+
+    public Ball() {
+        System.out.println("constructor0 Ball()");
+    }
+
+    public Ball(Point3D center, double r, double m)
+    {
+        super(center, r);
+        System.out.println("begin constructor1 Ball");
+        /*this.center=center;
+        this.radius=r;
+         if(radius<0)
+            radius=0;*/
+        setM(m);
+        System.out.println("end constructor1 Ball "+this.toString());
+    }
+
+    public Ball(double x, double y, double z, double radius, double m) {
+        super(x, y, z, radius);
+        System.out.println("begin constructor2 Ball");
+        setM(m);
+        System.out.println("end constructor2 Ball "+this.toString());
+    }
+
+    public void setM(double mass)
+    {
+        this.m =(mass<0) ? 0 : mass;
+    }
+
+
+}
+
+
+class Cube extends Figure3D{
+    double a;
+
+    @Override
+    public double getVolume() {
+        return a*a*a;
+    }
+}

@@ -1,0 +1,143 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Main {
+
+    static int minCost= Integer.MAX_VALUE;
+
+    public static void main(String[] args) {
+        ArrayList<PlanetLevel> galaxy = readInput("input.txt");
+        printPlanets(galaxy);
+        System.out.println("----------------------------");
+        Planet hell = new Planet(0, 1);
+        printTransitsFromPlanet(galaxy, hell, 0);
+        System.out.println("----------------------------");
+        System.out.println("minCost = "+minCost);
+    }
+
+    public static ArrayList<PlanetLevel> readInput(String fname)
+    {
+        try {
+            FileInputStream is = new FileInputStream(fname);
+            Scanner scanner=new Scanner(is);
+            int n = scanner.nextInt();  //число уровней
+            int ki;
+            int from, cost;
+            Transit transit;
+            Planet planet;
+            ArrayList<PlanetLevel> galaxy = new ArrayList<>();
+            for (int i=1; i<=n;i++)
+            {   //читаем блок i-го уровня
+                PlanetLevel level = new PlanetLevel(i);
+                galaxy.add(level);
+                level.planetAmount=scanner.nextInt();   //число планет на i уровне
+                for (int j=1; j<=level.planetAmount; j++)
+                {
+                    planet = new Planet(level.number, j);
+                    do {
+                        from = scanner.nextInt();
+                        if(from!=0)
+                        {
+                            cost = scanner.nextInt();
+                            transit = new Transit(from, j, cost);
+                            planet.transits.add(transit);
+                        }
+                    }while(from!=0);
+                    if(scanner.hasNextLine())
+                        scanner.nextLine();
+                    level.planets.add(planet);
+                }
+                if(scanner.hasNextLine())
+                    scanner.nextLine();
+            }
+            return galaxy;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void printPlanets(ArrayList<PlanetLevel> g)
+    {
+        System.out.println("0.1");
+        for (PlanetLevel level: g    ) {
+            for (Planet planet: level.planets  ) {
+                System.out.print(planet);
+            }
+            System.out.println();
+        }
+
+    }
+
+
+    public static void printTransitsFromPlanet(ArrayList<PlanetLevel> galaxy, Planet source, int pathCost)
+    {
+
+        int levelNumber = source.level;
+        int planetID =source.number;
+        if(levelNumber < galaxy.size())
+        {
+            PlanetLevel nextLevel = galaxy.get(levelNumber);
+
+            for (Planet planet : nextLevel.planets) {
+                for (Transit transit : planet.transits) {
+                    if (transit.from == planetID) {
+                        System.out.println(planet.toString() + transit.cost + " ");
+
+                        printTransitsFromPlanet(galaxy, planet, pathCost+ transit.cost);
+
+                    }
+                }
+            }
+        }
+        else {
+            System.out.println("pathCost =" + pathCost);
+            if(pathCost<minCost)
+                minCost=pathCost;
+        }
+    }
+}
+
+class Transit{
+    int from;
+    int to;
+    int cost;
+
+    public Transit(int from, int to, int cost) {
+        this.from = from;
+        this.to = to;
+        this.cost = cost;
+    }
+}
+
+class Planet{
+    int level;
+    int number;
+    ArrayList<Transit> transits = new ArrayList<>();
+ //   int bestPrice=Integer.MAX_VALUE;
+
+    public Planet(int level, int number) {
+        this.level = level;
+        this.number = number;
+    }
+
+    @Override
+    public String toString() {
+        return " " + level + "." + number+" ";
+    }
+}
+
+class PlanetLevel{
+    int number;
+    int planetAmount;
+    ArrayList<Planet> planets = new ArrayList<>();
+
+    public PlanetLevel(int number) {
+        this.number = number;
+    }
+}

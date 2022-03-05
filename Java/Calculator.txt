@@ -1,0 +1,106 @@
+package com.company;
+
+//Калькулятор умеет выполнять операции сложения, вычитания, умножения и деления с двумя числами: a + b, a - b, a * b, a / b. Данные передаются в одну строку (смотри пример)! Решения, в которых каждое число и арифмитеческая операция передаются с новой строки считаются неверными.
+//Калькулятор умеет работать как с арабскими (1,2,3,4,5…), так и с римскими (I,II,III,IV,V…) числами.
+//Калькулятор должен принимать на вход числа от 1 до 10 включительно, не более. На выходе числа не ограничиваются по величине и могут быть любыми.
+//Калькулятор умеет работать только с целыми числами.
+//Калькулятор умеет работать только с арабскими или римскими цифрами одновременно, при вводе пользователем строки вроде 3 + II калькулятор должен выбросить исключение и прекратить свою работу.
+//При вводе римских чисел, ответ должен быть выведен римскими цифрами, соответственно, при вводе арабских - ответ ожидается арабскими.
+//При вводе пользователем неподходящих чисел приложение выбрасывает исключение и завершает свою работу.
+//При вводе пользователем строки, не соответствующей одной из вышеописанных арифметических операций, приложение выбрасывает исключение и завершает свою работу.
+//Результатом операции деления является целое число, остаток отбрасывается.
+//Результатом работы калькулятора с арабскими числами могут быть отрицательные числа и ноль. Результатом работы калькулятора с римскими числами могут быть только положительные числа, если результат работы меньше единицы, выбрасывается исключение
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        String firstMass[] = {"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"};
+        int secondMass[] = {1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000};
+        Roman roman = new Roman(firstMass, secondMass);
+
+        System.out.print("Пример: ");
+        Scanner inputText = new Scanner(System.in);
+        String text = inputText.nextLine();
+
+        ArrayList<String> symbols = new ArrayList<>();
+        for (String str: text.split(" ")){symbols.add(str);}
+
+        String error = null;
+        if (symbols.size() == 3){
+            try{
+                if(symbols.get(1).equals("+") || symbols.get(1).equals("-") || symbols.get(1).equals("*") || symbols.get(1).equals("/")) {
+                    if (roman.allRomanNumbers.contains(symbols.get(0)) == true && roman.allRomanNumbers.contains(symbols.get(2)) == true) {
+                        if (roman.translateNumbersToInt(symbols.get(0)) > 0 && roman.translateNumbersToInt(symbols.get(0)) < 11 && roman.translateNumbersToInt(symbols.get(2)) > 0 && roman.translateNumbersToInt(symbols.get(0)) < 11)
+                            if(arithmeticCalculation(roman.translateNumbersToInt(symbols.get(0)), roman.translateNumbersToInt(symbols.get(2)), symbols.get(1)) > 0) {
+                                System.out.println("Результат: " + roman.translateNumbersToStr(arithmeticCalculation(roman.translateNumbersToInt(symbols.get(0)), roman.translateNumbersToInt(symbols.get(2)), symbols.get(1))));
+                            }else throw new Exception(error = "Результат при вычисление римскими числами не должен быть равен 0 или быть меньше 0");
+                        else throw new Exception(error = "вводные числа должны быть от 1 до 10 включительно!");
+                    } else {
+                        if (Integer.parseInt(symbols.get(0)) < 11 && Integer.parseInt(symbols.get(0)) > 0 && Integer.parseInt(symbols.get(2)) > 0 && Integer.parseInt(symbols.get(2)) < 11) {
+                            System.out.println("Результат: " + arithmeticCalculation(Integer.parseInt(symbols.get(0)), Integer.parseInt(symbols.get(2)), symbols.get(1)));
+                        } else throw new Exception(error = "вводные числа должны быть от 1 до 10 включительно!");
+                    }
+                }else throw new Exception(error = "Данная операция " + symbols.get(1) + " не может быть выполнена!");
+            }catch (NumberFormatException nfe){
+                System.out.println("Проверьте правильность ввода чисел. Калькулятор умеет работать только с Римскими числами (V + V) или только с Арабскими (5 + 5)!");
+            }catch (Exception ex){
+                System.out.println(error);
+            }
+        }else{
+            System.out.println("Проверьте пробелы или правильность ввода чисел! Пример: 5 + 5");
+        }
+    }
+    public static int arithmeticCalculation(int firstNumber, int secondNumber, String operation) {
+        int result = 0;
+        if (operation.equals("+")) {result = firstNumber + secondNumber;}
+        if (operation.equals("-")) {result = firstNumber - secondNumber;}
+        if (operation.equals("/")) {result = firstNumber / secondNumber;}
+        if (operation.equals("*")) {result = firstNumber * secondNumber;}
+        return result;
+    }
+}
+
+class Roman{
+    ArrayList<String> allRomanNumbers = new ArrayList<>();
+    ArrayList<Integer> translateAllRomanNumbersToArab = new ArrayList<>();
+    String romanNumbers[];
+    int arabNumbers[];
+    public Roman(String firstNumber[], int secondNumber[]){
+        this.romanNumbers = firstNumber;
+        this.arabNumbers = secondNumber;
+        fullMassRoman();
+    }
+    public void fullMassRoman(){
+        for(int i = 1; i < 1000; i++){
+            translateAllRomanNumbersToArab.add(i);
+            allRomanNumbers.add(translateNumbersToStr(i));
+        }
+    }
+    public int translateNumbersToInt(String number){
+        int counterArray = 0;
+        int result = 0;
+            for(String s: allRomanNumbers){
+                if (s.equals(number)){
+                    result = translateAllRomanNumbersToArab.get(counterArray);
+                }
+                counterArray++;
+            }
+        return result;
+    }
+    public String translateNumbersToStr(int number){
+        String result = "";
+        int sizeMass = arabNumbers.length - 1;
+        while (number > 0){
+            if(arabNumbers[sizeMass] < number || arabNumbers[sizeMass] == number){
+                number = number - arabNumbers[sizeMass];
+                result = result + romanNumbers[sizeMass];
+            }else{
+                sizeMass--;
+            }
+        }
+        return result;
+    }
+}

@@ -1,0 +1,73 @@
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) {
+        ContainerShip containerShip = new ContainerShip();//make new containerShip
+        containerShip.loadingContainer(new Container<>(new Animal("asd", 25)));//add container of animal to containerShip
+        containerShip.loadingContainer(new Container<>(new Product("qwerty product", 500)));
+        System.out.println(containerShip.containers.get(0).cargo.toString());
+        System.out.println(containerShip.containers.get(1).cargo.toString());
+    }
+}
+class Container <Cargo>{
+    Cargo cargo;
+    public Container(Cargo cargo) {this.cargo = cargo;}
+    //сделать загрузку груза в один и тот же контейнер
+}
+class ContainerShip implements IContainerTransport{
+    ArrayList<Container<?>> containers = new ArrayList<>();//it's ArrayList Containers
+    @Override public void loadingContainer(Container<?> obj) {
+        containers.add(obj);
+    }//it's method load cargo to ship
+    @Override public void ship(String from, String to) {
+        System.out.println("From: "+ from +"\n"+"To: "+ to +"\n");
+    }//it's method show from place to place
+    @Override public Container<?> unloadingOneContainer(int numberContainer) {
+        Container<?> c = containers.get(numberContainer);
+        containers.remove(numberContainer);
+        return c;
+    }//it's method unloading one container someplace
+    @Override public void unloadingFullContainers() {
+        int sizeMass = containers.size();
+        System.out.println("Начинаем разгрузку "+sizeMass + " контейнеров");
+        while(sizeMass > 0){
+            sizeMass = sizeMass--;
+            unloadingOneContainer(sizeMass);
+        }
+    }//it's method unloading everything container someplace
+}
+interface IContainerTransport{
+    public void loadingContainer(Container<?> obj);
+    public void ship(String from, String to);
+    public Container<?> unloadingOneContainer(int numberContainer);
+    public void unloadingFullContainers();
+}
+class Animal{
+    String name;
+    double weight;
+    public Animal(String name, double weight) {
+        this.name = name;
+        this.weight = weight;
+    }
+    @Override public String toString() {return ""+ name + "";}
+}
+class Material{
+    String name;
+    double weight;
+    public Material(String name, double weight) {
+        this.name = name;
+        this.weight = weight;
+    }
+    @Override public String toString() {return ""+ name + "";}
+}
+class Product{
+    String name;
+    double weight;
+    public Product(String name, double weight) {
+        this.name = name;
+        this.weight = weight;
+    }
+    @Override public String toString() {return ""+ name + "";}
+}
